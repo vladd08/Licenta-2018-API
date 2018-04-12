@@ -36,6 +36,27 @@ class MongoUnitOfWork {
                 }
             });
             break;
+            case 'UPDATE' :
+                var query = {};
+                query[criteria] = value;
+                this.db.collection(collection).update(query, { $set : jsonobj }, function(err, result){
+                    if(err) return callback(err);
+                    return callback(result);
+                });
+            break;
+            case 'DELETE' : 
+                var query = {};
+                query[criteria] = value;
+                try {
+                    this.db.collection(collection).deleteOne(query, function(err, result) {
+                        if(err) return callback(err);
+                        return callback(result.deletedCount);
+                    });
+                }
+                catch(e) {
+                    return callback(e);
+                }
+            break;
         }
     }
     createUserModel() {

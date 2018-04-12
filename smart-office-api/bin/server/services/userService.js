@@ -17,6 +17,12 @@ class UserService {
          });
     }
 
+    getAllUsers(callback) {
+        this.uow.query('Users','SELECT','','', null, {}, (result) => {
+            return callback(result);
+        });
+   }
+
     getById(callback, id) {
         if(ObjectId.isValid(id)) {
             this.uow.query('Users','SELECT','_id',ObjectId(id), null, {},(result) => {
@@ -37,7 +43,6 @@ class UserService {
                     else return callback(new Error("Wrong credentials, please try again!!"));
                 });
             } else {
-                console.log('A');
                 return callback(new Error("Username not found!"));
             }
         });
@@ -71,7 +76,7 @@ class UserService {
             });
     }
 
-    //inserting the Card Code into db
+    // inserting the Card Code into db
     insertAccessCode(next, data) {
         let accessSchema = this.uow.createAccessModel();
         this.uow.query('AccessCodes', 'INSERT', '', '', accessSchema, data, function(err, resp) {
@@ -85,10 +90,37 @@ class UserService {
     }
 
     getAccessCodeByUsername(next, username) {
-            this.uow.query('AccessCodes','SELECT','username', username, null, {},(result) => {
-                return next(result);
+        this.uow.query('AccessCodes','SELECT','username', username, null, {},(result) => {
+        return next(result);
+        });
+    }
+
+    deleteUser(callback, id) {
+        if(ObjectId.isValid(id)) {
+            this.uow.query('Users','DELETE','_id',ObjectId(id), null, {}, (result) => {
+                console.log(result);
+                return callback(result, null);
             });
+        } else {
+            return callback(null,new Error("Invalid ID"));
         }
+    }
+
+    deleteAccessCode(callback, username) {
+        this.uow.query('AccessCodes','DELETE','username', username, null, {}, (result) => {
+            return callback(result, null);
+        });
+    }
+
+    updateUser(callback, id, data) {
+        if(ObjectId.isValid(id)) {
+            this.uow.query('Users', 'UPDATE', '_id', ObjectId(id), null, data, (result) => {
+                return callback(result,null);
+            });
+        } else {
+            return callback(null, new Error('invalid user id'));
+        }
+    }
 }
 
 module.exports = UserService;

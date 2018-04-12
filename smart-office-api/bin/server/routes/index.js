@@ -5,6 +5,7 @@ const
     parser = require('body-parser'),
     helmet = require('helmet'),
     debug = require('debug')('smart-office-api:server'),
+    cors = require('cors'),
     compression = require('compression');
 
 function init(server) {
@@ -13,6 +14,7 @@ function init(server) {
         return next();
     });
 
+    server.use(cors());
     server.use(helmet());
     server.use(compression());
     server.use(parser.json());

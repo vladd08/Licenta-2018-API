@@ -11,17 +11,11 @@ class UserService {
         this.uow = uow;
     }
 
-    getAll(callback) {
-         this.uow.query('test','SELECT','','', null, {}, (result) => {
-             return callback(result);
-         });
-    }
-
     getAllUsers(callback) {
         this.uow.query('Users','SELECT','','', null, {}, (result) => {
             return callback(result);
         });
-   }
+    }
 
     getById(callback, id) {
         if(ObjectId.isValid(id)) {

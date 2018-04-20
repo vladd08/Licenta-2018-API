@@ -38,7 +38,7 @@ var UserSchema = new mongoose.Schema({
         type: String
     },
     sex: { // 0 - F , 1 - M
-        type: Boolean,
+        type: Number,
         required: true
     },
     address: {

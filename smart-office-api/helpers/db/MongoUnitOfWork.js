@@ -1,5 +1,6 @@
 const userSchema = require('../../models/user'),
       accessSchema = require('../../models/access'),
+      projectSchema = require('../../models/project'),
       crypto = require('bcrypt-nodejs'),
       mongoose = require('mongoose');
 
@@ -59,6 +60,7 @@ class MongoUnitOfWork {
             break;
         }
     }
+
     createUserModel() {
         var userModel = mongoose.model('User', userSchema, 'Users');
         return userModel;
@@ -67,6 +69,11 @@ class MongoUnitOfWork {
     createAccessModel() {
         var accessModel = mongoose.model('Access', accessSchema, 'AccessCodes');
         return accessModel;
+    }
+
+    createProjectModel() {
+        var projectModel = mongoose.model('Project', projectSchema, 'Projects');
+        return projectModel;
     }
 
     complete() {

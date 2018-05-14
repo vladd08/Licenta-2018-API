@@ -1,6 +1,7 @@
 const userSchema = require('../../models/user'),
       accessSchema = require('../../models/access'),
       projectSchema = require('../../models/project'),
+      assignmentSchema = require('../../models/assignments'),
       crypto = require('bcrypt-nodejs'),
       mongoose = require('mongoose');
 
@@ -24,6 +25,7 @@ class MongoUnitOfWork {
                 query[criteria] = value;
                 this.db.collection(collection).find(query).toArray(function(err,results) {
                     if (err) this.db.rollback();
+                    console.log(results);
                     return callback(results);
                 });
             }
@@ -74,6 +76,11 @@ class MongoUnitOfWork {
     createProjectModel() {
         var projectModel = mongoose.model('Project', projectSchema, 'Projects');
         return projectModel;
+    }
+
+    createAssignmentModel() {
+        var assignmentModel = mongoose.model('Assignment', assignmentSchema, 'ProjectAsignments');
+        return assignmentModel;
     }
 
     complete() {

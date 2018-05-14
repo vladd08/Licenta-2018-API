@@ -24,22 +24,25 @@ router.use('/login/2fa/verify', apiRoutes);
 
 // get all users
 router.get('/all', function (req, res, next) {
-    if (req.decoded.role != 'admin') return res.status(403).json({
-        'error': 'unauthorized',
-        'message': 'only admins can access this route.'
-    });
-    let db = UnitOfWork.create((uow) => {
-        if (uow instanceof Error) {
-            next();
-        } else {
-            let data = new UserService(uow);
-            data.getAllUsers((result) => {
-                debug('test result for GET is %s', JSON.stringify(result));
-                res.status(200).json(result);
-                uow.complete()
-            });
-        }
-    });
+    if (req.decoded.role === 'admin' || req.decoded.role === 'projectmanager') {
+        let db = UnitOfWork.create((uow) => {
+            if (uow instanceof Error) {
+                next();
+            } else {
+                let data = new UserService(uow);
+                data.getAllUsers((result) => {
+                    debug('test result for GET is %s', JSON.stringify(result));
+                    res.status(200).json(result);
+                    uow.complete()
+                });
+            }
+        });
+    } else {
+        return res.status(403).json({
+            'error': 'unauthorized',
+            'message': 'only admins can access this route.'
+        });
+    }
 });
 
 // get a user by id
@@ -319,7 +322,8 @@ router.post('/login/2fa/verify', function (req, res, next) {
                                     'success': true,
                                     'message': 'Successfully logged in!',
                                     'role': payload.role,
-                                    'token': token
+                                    'token': token,
+                                    'id' : uId
                                 });
                             }
                         }, ress[0].username);

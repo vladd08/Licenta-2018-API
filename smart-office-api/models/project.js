@@ -26,6 +26,18 @@ var ProjectSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         required: false
+    },
+    documentationlink: {
+        type: String,
+        required: false
+    },
+    gitlink: {
+        type: String,
+        required: false
+    },
+    issuetrackinglink: {
+        type: String,
+        required: false
     }
 });
 module.exports = ProjectSchema;

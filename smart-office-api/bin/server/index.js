@@ -1,14 +1,14 @@
-const 
+const
     express = require('express'),
     http = require('http'),
     debug = require('debug')('smart-office-api:server');
 
-module.exports = function() {
+module.exports = function () {
     let server = express(),
-    create,
-    start;
+        create,
+        start;
 
-    create = function(config) {
+    create = function (config) {
         let routes = require('./routes');
 
         //Server settings
@@ -21,16 +21,16 @@ module.exports = function() {
         routes.init(server);
     };
 
-    start = function() {
+    start = function () {
         let hostname = server.get('hostname'),
             port = server.get('port');
 
-        http.createServer(server).listen(port, function() {
-            debug('Express server listening on - http://' + hostname + ':'+ port);
+        http.createServer(server).listen(port, function () {
+            debug('Express server listening on - http://' + hostname + ':' + port);
         });
     };
 
-    return { 
+    return {
         create: create,
         start: start
     };

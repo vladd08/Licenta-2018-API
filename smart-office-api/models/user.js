@@ -14,11 +14,11 @@ var UserSchema = new mongoose.Schema({
         unique: true,
         required: true,
         trim: true
-      },
+    },
     password: {
         type: String,
         required: true,
-      },
+    },
     firstname: {
         type: String,
         required: true,

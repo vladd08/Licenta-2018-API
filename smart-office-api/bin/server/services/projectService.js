@@ -66,7 +66,13 @@ class ProjectService {
             });
         } else {
             return callback(null, new Error("Invalid ID"));
-        } 
+        }
+    }
+
+    insertHoursToProject(callback, projectid, data) {
+        this.uow.query('Projects', 'UPDATE', '_id', ObjectId(id), null, data, (result) => {
+            return callback(result);
+        });
     }
 }
 

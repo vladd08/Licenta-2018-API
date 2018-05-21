@@ -15,7 +15,6 @@ router.use('/', apiRoutes);
 router.post('/project', function (req, res, next) {
     if (req.decoded.role == 'admin' || req.decoded.role == 'projectmanager') {
         var body = req.body;
-        debug(body);
         let db = UnitOfWork.create((uow) => {
             if (uow instanceof Error) {
                 next();
@@ -162,7 +161,6 @@ router.post('/assignment', function (req, res, next) {
                         if (response instanceof Error) {
                             next(response);
                         } else {
-                            debug(response);
                             res.status(200).json({
                                 "success": true,
                                 "message": "Assignment added successfully!"
@@ -193,7 +191,6 @@ router.get('/assignment/user/all/:id', function (req, res, next) {
                 next();
             } else {
                 const id = req.params.id;
-                debug(id);
                 var data = new ProjectService(uow);
                 data.getAssignmentsForUser((response, err) => {
                     if (err) {
@@ -217,7 +214,6 @@ router.get('/assignment/user/all/:id', function (req, res, next) {
                     next();
                 } else {
                     const id = req.params.id;
-                    debug(id);
                     var data = new ProjectService(uow);
                     data.getAssignmentsForUser((response, err) => {
                         if (err) {
@@ -254,7 +250,6 @@ router.get('/assignment/project/all/:id', function (req, res, next) {
                 next();
             } else {
                 const id = req.params.id;
-                debug(id);
                 var data = new ProjectService(uow);
                 data.getUsersForProject((response, err) => {
                     if (err) {
@@ -276,5 +271,6 @@ router.get('/assignment/project/all/:id', function (req, res, next) {
         });
     }
 });
+
 
 module.exports = router;

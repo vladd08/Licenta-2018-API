@@ -1,9 +1,11 @@
 const userSchema = require('../../models/user'),
-      accessSchema = require('../../models/access'),
-      projectSchema = require('../../models/project'),
-      assignmentSchema = require('../../models/assignments'),
-      crypto = require('bcrypt-nodejs'),
-      mongoose = require('mongoose');
+    accessSchema = require('../../models/access'),
+    projectSchema = require('../../models/project'),
+    assignmentSchema = require('../../models/assignments'),
+    requestSchema = require('../../models/request'),
+    hourSchema = require('../../models/hours'),
+    crypto = require('bcrypt-nodejs'),
+    mongoose = require('mongoose');
 
 class MongoUnitOfWork {
     constructor(db) {
@@ -12,54 +14,53 @@ class MongoUnitOfWork {
         mongoose.connect(this.client.s.url);
     }
 
-    query(collection,operation,criteria,value,schema,jsonobj,callback) {
-        switch(operation) {
-            case 'SELECT' : 
-            if(criteria == '') {
-                this.db.collection(collection).find().toArray(function(err,results) {
-                    if (err) this.db.rollback();
-                    return callback(results);
-                });
-            } else {
-                var query = {};
-                query[criteria] = value;
-                this.db.collection(collection).find(query).toArray(function(err,results) {
-                    if (err) this.db.rollback();
-                    console.log(results);
-                    return callback(results);
-                });
-            }
-            break;
-            case 'INSERT' : 
-            schema.create(jsonobj,function(err, user) {
-                if(err) {
-                    return callback(err);
+    query(collection, operation, criteria, value, schema, jsonobj, callback) {
+        switch (operation) {
+            case 'SELECT':
+                if (criteria == '') {
+                    this.db.collection(collection).find().toArray(function (err, results) {
+                        if (err) this.db.rollback();
+                        return callback(results);
+                    });
                 } else {
-                    return callback(user);
+                    var query = {};
+                    query[criteria] = value;
+                    this.db.collection(collection).find(query).toArray(function (err, results) {
+                        if (err) this.db.rollback();
+                        return callback(results);
+                    });
                 }
-            });
-            break;
-            case 'UPDATE' :
+                break;
+            case 'INSERT':
+                schema.create(jsonobj, function (err, user) {
+                    if (err) {
+                        return callback(err);
+                    } else {
+                        return callback(user);
+                    }
+                });
+                break;
+            case 'UPDATE':
                 var query = {};
                 query[criteria] = value;
-                this.db.collection(collection).update(query, { $set : jsonobj }, function(err, result){
-                    if(err) return callback(err);
+                this.db.collection(collection).update(query, { $set: jsonobj }, function (err, result) {
+                    if (err) return callback(err);
                     return callback(result);
                 });
-            break;
-            case 'DELETE' : 
+                break;
+            case 'DELETE':
                 var query = {};
                 query[criteria] = value;
                 try {
-                    this.db.collection(collection).deleteOne(query, function(err, result) {
-                        if(err) return callback(err);
+                    this.db.collection(collection).deleteOne(query, function (err, result) {
+                        if (err) return callback(err);
                         return callback(result.deletedCount);
                     });
                 }
-                catch(e) {
+                catch (e) {
                     return callback(e);
                 }
-            break;
+                break;
         }
     }
 
@@ -81,6 +82,16 @@ class MongoUnitOfWork {
     createAssignmentModel() {
         var assignmentModel = mongoose.model('Assignment', assignmentSchema, 'ProjectAsignments');
         return assignmentModel;
+    }
+
+    createHourSchema() {
+        var hourModel = mongoose.model('Hour', hourSchema, 'HourTracking');
+        return hourModel;
+    }
+
+    createRequestSchema() {
+        var requestModel = mongoose.model('Request', requestSchema, 'TrackingRequests');
+        return requestModel;
     }
 
     complete() {

@@ -2,11 +2,11 @@ var mongoose = require('mongoose'),
     ObjectId = require('mongodb').ObjectId;
 
 var AssignmentSchema = new mongoose.Schema({
-    projectId : {
+    projectId: {
         type: String,
         required: true
     },
-    userId : {
+    userId: {
         type: String,
         required: true
     }

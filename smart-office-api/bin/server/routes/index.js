@@ -1,4 +1,4 @@
-const   
+const
     apiRoute = require('./apis'),
     homeRoute = require('./home'),
     errorRoute = require('./error'),
@@ -21,12 +21,12 @@ function init(server) {
     server.use('/api', apiRoute);
     server.use('/home', homeRoute);
     server.use('/error', errorRoute);
-    server.get('/', function (req,res){
+    server.get('/', function (req, res) {
         res.redirect('/home');
     });
 
     if (server.get('env') === 'development') {
-        server.use(function(err, req, res, next) {
+        server.use(function (err, req, res, next) {
             res.status(err.status || 500);
             res.json({
                 message: err.message,
@@ -34,7 +34,7 @@ function init(server) {
             });
         });
     } else {
-        server.use(function(err, req, res, next) {
+        server.use(function (err, req, res, next) {
             res.status(err.status || 500);
             res.json({
                 message: err.message,

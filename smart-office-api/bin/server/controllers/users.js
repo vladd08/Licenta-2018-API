@@ -31,7 +31,6 @@ router.get('/all', function (req, res, next) {
             } else {
                 let data = new UserService(uow);
                 data.getAllUsers((result) => {
-                    debug('test result for GET is %s', JSON.stringify(result));
                     res.status(200).json(result);
                     uow.complete()
                 });
@@ -87,12 +86,6 @@ router.post('/register', function (req, res, next) {
             // res.status(500).json({'Error' : "Internal server error : could not connect to the database!", "IssuedOn" : new Date()})
         } else {
             let data = new UserService(uow);
-            debug('Body params', req.body);
-            debug(req.body.email + ' ' +
-                req.body.username + ' ' +
-                req.body.password + ' ' +
-                req.body.sex + ' ' +
-                req.body.accessCard);
             var userData = {
                 email: req.body.email,
                 username: req.body.username,
@@ -108,14 +101,12 @@ router.post('/register', function (req, res, next) {
                 accessCard: req.body.accessCard,
                 createdAt: Date.now()
             };
-            debug('User data', userData);
             data.insertUser((result, err) => {
                 if (err) {
                     err.status = 400;
                     next(err);
                 }
                 else {
-                    debug(result);
                     if (result.errmsg) {
                         res.status(400).json({ error: "There is an account associated with this username / email." });
                     } else if (res.errors) {
@@ -176,7 +167,6 @@ router.put('/user/:id', function (req, res, next) {
 // delete a user
 router.delete('/user/:id', function (req, res, next) {
     var id = req.params.id;
-    debug(id);
     var username = req.body.username;
     if (req.decoded.role != 'admin') return res.status(403).json({
         'error': 'unauthorized',
@@ -283,10 +273,8 @@ router.post('/login/2fa/verify', function (req, res, next) {
                     'message': 'invalid user id.'
                 });
                 if (ress.length != 0) {
-                    debug(ress);
                     if (tfaCode) {
                         data.getAccessCodeByUsername(function (data) {
-                            debug(data);
                             var login = notp.totp.verify(tfaCode, data[0].accessCard);
                             if (!login) {
                                 res.status(403).json({
@@ -323,7 +311,7 @@ router.post('/login/2fa/verify', function (req, res, next) {
                                     'message': 'Successfully logged in!',
                                     'role': payload.role,
                                     'token': token,
-                                    'id' : uId
+                                    'id': uId
                                 });
                             }
                         }, ress[0].username);

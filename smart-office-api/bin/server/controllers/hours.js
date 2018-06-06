@@ -30,14 +30,14 @@ router.put('/tracking/:id', function (req, res, next) {
                     userId: uId
                 }
                 let data = new HourService(uow);
-                data.checkTrackingExists(function (result) {
+                data.getAllTrackingsInMonth(function (result) {
                     var success = false;
-                    if (result.length !== 0) {
+                    if (result.length !== 0) { // if the user has tracking data available for the month
                         for (let tracking of result) {
-                            if (sameDay(new Date(tracking.date), new Date(hourTrackingData.date))
+                            if (sameDay(new Date(tracking.date), new Date(hourTrackingData.date)) // found the tracking
                                 && tracking.projectId === hourTrackingData.projectId) {
                                 success = true;
-                                data.insertHourTracking(function (result) { //update
+                                data.insertHourTracking(function (result) { // update
                                 }, hourTrackingData, tracking._id);
                                 break;
                             }
@@ -47,15 +47,15 @@ router.put('/tracking/:id', function (req, res, next) {
                                 'success': true,
                                 'result': "Updated current tracking."
                             });
-                        } else {
-                            data.postHourTracking(function (result) { //insert
+                        } else { // tracking was not found, creating a new one
+                            data.postHourTracking(function (result) { // insert
                             }, hourTrackingData, uId);
                             res.status(200).json({
                                 'success': true,
                                 'result': "No tracking existed. Inserted new tracking."
                             });
                         }
-                    } else {
+                    } else { // the user has no tracking records, return an empty array
                         data.postHourTracking(function (result) {
                             res.status(200).json({
                                 'success': true,
@@ -63,7 +63,7 @@ router.put('/tracking/:id', function (req, res, next) {
                             });
                         }, hourTrackingData, uId);
                     }
-                }, uId, hourTrackingData.data);
+                }, uId);
             }
         });
     } else {
@@ -73,6 +73,27 @@ router.put('/tracking/:id', function (req, res, next) {
         });
     }
 });
+
+router.get('/tracking/requests', function (req, res, next) {
+    if (req.decoded.role != 'admin') return res.status(403).json({
+        'error': 'unauthorized',
+        'message': 'only admins can access this route.'
+    });
+    let db = UnitOfWork.create((uow) => {
+        if (uow instanceof Error) {
+            next();
+        } else {
+            let hourService = new HourService(uow);
+            hourService.getTrackingRequests(function (result) {
+                res.status(200).json({
+                    'success': true,
+                    'result': result
+                });
+            });
+        }
+    });
+});
+
 
 router.get('/tracking/:id', function (req, res, next) {
     var datestart = new Date(req.body.datestart);
@@ -89,26 +110,6 @@ router.get('/tracking/:id', function (req, res, next) {
                     'result': result
                 })
             }, id);
-        }
-    });
-});
-
-router.get('/tracking/requests/:id', function (req, res, next) {
-    if (req.decoded.role != 'admin') return res.status(403).json({
-        'error': 'unauthorized',
-        'message': 'only admins can access this route.'
-    });
-    let db = UnitOfWork.create((uow) => {
-        if (uow instanceof Error) {
-            next();
-        } else {
-            let hourService = new HourService(uow);
-            hourService.getTrackingRequests(function (result) {
-                res.status(200).json({
-                    'success': true,
-                    'result': result
-                });
-            }, req.params.id);
         }
     });
 });
@@ -137,17 +138,23 @@ router.put('/tracking/requests/:id', function (req, res, next) {
 
 router.post('/tracking/requests', function (req, res, next) {
     var body = req.body;
-    var userid = req.params.id;
     let db = UnitOfWork.create((uow) => {
         if (uow instanceof Error) {
             next();
         } else {
             let hourService = new HourService(uow);
             hourService.insertTrackingRequest(function (result) {
-                res.status(200).json({
-                    'success': true,
-                    'result': result
-                });
+                if (result instanceof Error) {
+                    res.status(304).json({
+                        'success': false,
+                        'result': result
+                    })
+                } else {
+                    res.status(200).json({
+                        'success': true,
+                        'result': result
+                    });
+                }
             }, body);
         }
     });

@@ -5,6 +5,7 @@ const userSchema = require('../../models/user'),
     requestSchema = require('../../models/request'),
     hourSchema = require('../../models/hours'),
     crypto = require('bcrypt-nodejs'),
+    debug = require('debug'),
     mongoose = require('mongoose');
 
 class MongoUnitOfWork {
@@ -24,7 +25,13 @@ class MongoUnitOfWork {
                     });
                 } else {
                     var query = {};
-                    query[criteria] = value;
+                    if (!(criteria instanceof Array)) { // if there is only a single property to look after
+                        query[criteria] = value;
+                    } else { // if there is an array of properties
+                        for (let i = 0; i < criteria.length; i++) {
+                            query[criteria[i]] = value[i];
+                        }
+                    }
                     this.db.collection(collection).find(query).toArray(function (err, results) {
                         if (err) this.db.rollback();
                         return callback(results);

@@ -11,12 +11,14 @@ class UserService {
         this.uow = uow;
     }
 
+    // gets all users
     getAllUsers(callback) {
         this.uow.query('Users', 'SELECT', '', '', null, {}, (result) => {
             return callback(result);
         });
     }
 
+    // gets a user by id
     getById(callback, id) {
         if (ObjectId.isValid(id)) {
             this.uow.query('Users', 'SELECT', '_id', ObjectId(id), null, {}, (result) => {
@@ -27,6 +29,7 @@ class UserService {
         }
     }
 
+    // gets a user by username and password - used for login
     getByUsernameAndPassword(callback, username, password) {
         this.uow.query('Users', 'SELECT', 'username', username, null, {}, (result) => {
             let user = result;
@@ -41,6 +44,7 @@ class UserService {
         });
     }
 
+    // creates a new user
     insertUser(callback, data) {
         let userSchema = this.uow.createUserModel();
         let mUow = this.uow;
@@ -82,12 +86,14 @@ class UserService {
         })
     }
 
+    // gets the access code for a user
     getAccessCodeByUsername(next, username) {
         this.uow.query('AccessCodes', 'SELECT', 'username', username, null, {}, (result) => {
             return next(result);
         });
     }
 
+    // delete a user
     deleteUser(callback, id) {
         if (ObjectId.isValid(id)) {
             this.uow.query('Users', 'DELETE', '_id', ObjectId(id), null, {}, (result) => {
@@ -99,12 +105,14 @@ class UserService {
         }
     }
 
+    // delete an access code (only when deleting the user)
     deleteAccessCode(callback, username) {
         this.uow.query('AccessCodes', 'DELETE', 'username', username, null, {}, (result) => {
             return callback(result, null);
         });
     }
 
+    // update a user's data
     updateUser(callback, id, data) {
         if (ObjectId.isValid(id)) {
             this.uow.query('Users', 'UPDATE', '_id', ObjectId(id), null, data, (result) => {

@@ -17,7 +17,6 @@ module.exports = function () {
         server.set('hostname', config.hostname);
         server.set('view engine', 'jade');
 
-        // Set up routes
         routes.init(server);
     };
 
